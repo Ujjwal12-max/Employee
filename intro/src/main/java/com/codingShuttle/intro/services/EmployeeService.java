@@ -5,6 +5,9 @@ import com.codingShuttle.intro.Entitities.EmployeeEntity;
 import com.codingShuttle.intro.repo.EmployeeRepo;
 import jakarta.validation.constraints.NotBlank;
 import org.modelmapper.ModelMapper;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +22,8 @@ public class EmployeeService {
     private final EmployeeRepo employeeRepo;
     private final ModelMapper modelMapper;
 
+    Logger log = LoggerFactory.getLogger(EmployeeService.class);
+
     public EmployeeService(EmployeeRepo employeeRepo, ModelMapper modelMapper) {
         this.employeeRepo = employeeRepo;
         this.modelMapper = modelMapper;
@@ -27,10 +32,12 @@ public class EmployeeService {
     public EmployeeDTO createNewEmployee(EmployeeDTO addEmployee){
         EmployeeEntity toSave = modelMapper.map(addEmployee, EmployeeEntity.class);
         EmployeeEntity savedEntity =employeeRepo.save(toSave);
+        log.info("employee created with name {}", savedEntity.getName());
         return modelMapper.map(savedEntity, EmployeeDTO.class);
     }
 
     public Optional<EmployeeDTO> getEmpByIdService(Long id) {
+
         return employeeRepo.findById(id).map(employeeEnt -> modelMapper.map(employeeEnt, EmployeeDTO.class));
     }
 
