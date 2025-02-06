@@ -1,11 +1,9 @@
 package com.codingShuttle.intro.controllers;
 
-
-import com.codingShuttle.intro.Entitities.EmployeeEntity;
 import com.codingShuttle.intro.services.EmployeeService;
 import jakarta.validation.Valid;
-import org.apache.juli.logging.Log;
-import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import com.codingShuttle.intro.DTO.EmployeeDTO;
 import org.springframework.http.ResponseEntity;
@@ -22,29 +20,27 @@ public class Employee {
         this.employeeService = employeeService;
     }
     RestTemplate restTemplate = new RestTemplate();
- ResponseEntity<String> respond = restTemplate.postForEntity("https://jsonplaceholder.typicode.com/posts/1","", String.class);
-
     @GetMapping (path = "/")
     public String homePage(){
         return "Welcome to the page for online registration of employees";
     }
 
-    @GetMapping( path = "/{EmpId}")
-    public EmployeeDTO getEmployeeDetail (@PathVariable(name = "EmpId") long id){
-        return new EmployeeDTO();
-    }
     @PostMapping( path = "/CreateEmployee")
-    public EmployeeDTO CreateEmployee (/*@RequestParam(required = true, name = "name" ) String name,
+    public ResponseEntity<EmployeeDTO> CreateEmployee (/*@RequestParam(required = true, name = "name" ) String name,
                                        @RequestParam(required = true, name = "emailId" ) String email,
                                        @RequestParam(required = true, name = "Contact Number" ) String contact*/
                                        @RequestBody @Valid EmployeeDTO inputEmployee){
         //ModelMapper.map(inputEmployee,EmployeeDTO.class)
-        return employeeService.createNewEmployee(inputEmployee);
+        EmployeeDTO employeeCreated = employeeService.createNewEmployee(inputEmployee);
+        return new ResponseEntity<EmployeeDTO>(employeeCreated, HttpStatus.CREATED);
     }
 
     @GetMapping(path ="/getEmployeeById/{EmpId}")
-    public Optional<EmployeeDTO> getEmpById (@Valid @PathVariable (required = true, name = "EmpId") Long id)  {
-        return employeeService.getEmpByIdService(id);
+    public ResponseEntity<EmployeeDTO> getEmpById (@Valid @PathVariable (required = true, name = "EmpId") Long id)  {
+        Optional<EmployeeDTO> Employee =  employeeService.getEmpByIdService(id);
+        return Employee
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping(path ="/getAllEmployees")
@@ -56,10 +52,15 @@ public class Employee {
     public Optional<EmployeeDTO> updateEmployeeById(@PathVariable(name = "EmpId")Long id, @RequestBody @Valid EmployeeDTO employeeDTO){
       return employeeService.updateEmployeeByIdService(id, employeeDTO);
     }
-    @DeleteMapping(path = "employee/deleteEmployeeById/{EmpId}")
-    public String deleteEmployeeById(@PathVariable(name = "id") Long id){
-        employeeService.deleteEmployeeByIdService(id);
-        return"uj";
+
+    @DeleteMapping(path = "/deleteEmployeeById/{EmpId}")
+    public String deleteEmployeeById(@PathVariable(name = "EmpId") Long id){
+        try {
+            employeeService.deleteEmployeeByIdService(id);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return"Deleted";
     }
 
 

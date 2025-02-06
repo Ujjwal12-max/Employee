@@ -5,6 +5,7 @@ import com.codingShuttle.intro.Entitities.EmployeeEntity;
 import com.codingShuttle.intro.repo.EmployeeRepo;
 import jakarta.validation.constraints.NotBlank;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 @Service
 public class EmployeeService {
 
+
     private final EmployeeRepo employeeRepo;
     private final ModelMapper modelMapper;
 
@@ -21,6 +23,7 @@ public class EmployeeService {
         this.employeeRepo = employeeRepo;
         this.modelMapper = modelMapper;
     }
+
     public EmployeeDTO createNewEmployee(EmployeeDTO addEmployee){
         EmployeeEntity toSave = modelMapper.map(addEmployee, EmployeeEntity.class);
         EmployeeEntity savedEntity =employeeRepo.save(toSave);
@@ -38,6 +41,7 @@ public class EmployeeService {
                 .map(employeeEnt -> modelMapper.map(employeeEnt, EmployeeDTO.class))
                 .collect(Collectors.toList());
     }
+
     public Optional<EmployeeDTO> updateEmployeeByIdService(Long id, EmployeeDTO employee) {
         try {
             isExistsByEmployeeId(id);
@@ -57,12 +61,8 @@ public class EmployeeService {
     }
 
     public Boolean deleteEmployeeByIdService(Long id) throws Exception {
-        try {
-            isExistsByEmployeeId(id);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        employeeRepo.deleteById(id);
+        isExistsByEmployeeId(id);
+     employeeRepo.deleteById(id);
      return true;
     }
 

@@ -1,9 +1,7 @@
 package com.codingShuttle.intro.DTO;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
+import com.codingShuttle.intro.validators.ValidEmail;
+import jakarta.validation.constraints.*;
 
 public class EmployeeDTO {
 
@@ -23,9 +21,11 @@ public class EmployeeDTO {
     private Long id;
 
     @NotBlank(message = " name cannot be blank")
+    @Pattern(regexp = "^[A-Za-z\\s]+$", message = "Name must contain only letters and spaces")
     private String name;
 
-    @Email(message = "Please enter Valid email")
+    //@Email(message = "Please enter Valid email", regexp= "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
+    @ValidEmail
     private String email;
 
     @Min(value = 16, message = "Minimum age is 16 for employeeDTO" )
@@ -33,6 +33,7 @@ public class EmployeeDTO {
     private Integer age;
 
     @NotBlank(message = "Contact number cannot be blank" )
+    @Pattern(regexp = "^[0-9]{10}+$", message = "Must contain only number and should contain 10 digits")
     private String contactNo;
     private Boolean admin;
 
